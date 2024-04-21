@@ -1,16 +1,33 @@
+/* eslint-disable no-unused-vars */
 import Header from "./Components/Header"
 import Guitar from "./Components/Guitar"
 import { useState,useEffect } from "react"
 import { db } from "./data/bd"
 
 function App() {
-  const [data,setData] = useState(db);
-  const [car,setCar] = useState([]);
+  const initialCart = () =>{
+    const localStorageCart = localStorage.getItem('myDate');
+    // if(localStorageCart){
+    //   return JSON.parse(localStorageCart);
+    // }
+    // return [];
+    return localStorageCart ? JSON.parse(localStorageCart) : [] 
+  }
+  const [data] = useState(db);
+  const [car,setCar] = useState(initialCart);
+
+  const MAX_ITEMS = 5;
+  const MIN_ITEMS = 1;
+
+  useEffect (()=>{
+    localStorage.setItem('myDate',JSON.stringify(car))
+  },[car])
 
   function addToCar(item){
     const itemExists = (car.findIndex(element => element.id === item.id))
     if(itemExists>=0){//existe element
-      console.log("ya existe");
+      // console.log("ya existe");
+      if(car[itemExists].cantidad >= MAX_ITEMS) return
       const copytemp = [...car];
       copytemp[itemExists].cantidad++;
       setCar(copytemp);
@@ -22,9 +39,49 @@ function App() {
 
     }
   }
+  const removeFromCart = (id) =>{
+    // const tempCar = car.filter((value)=> {
+    //   return value.id != id;
+    // });
+    // setCar(tempCar);
+    setCar(car.filter((value) => value.id !==id));
+  }
+  const addCar = (id) =>{
+    const temCar = car.map((value)=>{
+      if(value.id === id && value.cantidad<MAX_ITEMS){
+        return{
+          ...value,
+          cantidad: value.cantidad+1
+        }
+      }
+      return value;
+    })
+    setCar(temCar);
+  }
+  const clearCart = () =>{
+    setCar([]);
+  }
+  const subtract = (id) =>{
+    const temCar = car.map((value) => {
+      if(value.id === id && value.cantidad>MIN_ITEMS){
+        return {
+          ...value,
+          cantidad: value.cantidad-1
+        }
+      }
+      return value;
+    })
+    setCar(temCar);
+  }
   return (
     <>
-    <Header/>
+    <Header
+      car={car}
+      removeFromCart = {removeFromCart}
+      addCar={addCar}
+      subtract={subtract}
+      clearCart={clearCart}
+    />
     <main className="container-xl mt-5">
         <h2 className="text-center">Nuestra Colección</h2>
 

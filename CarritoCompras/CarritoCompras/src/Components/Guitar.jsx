@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 const Guitar = ({objeto,addToCar}) => {
   // const handleClick=(objeto)=>{
   //   setCar([...car,objeto]);
